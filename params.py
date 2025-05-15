@@ -1,0 +1,7 @@
+STAT_WEIGHTS = [0.6, 0.3, 0.1, 0.0]
+WEIGHT_WEIGHT = 0.7
+AVERAGE_HITRATE = 0.2
+
+# hitrate for a 1.0 batter vs a 0.1 pitcher:
+# 1 + WEIGHT_WEIGHT / 0.1 + WEIGHT WEIGHT / AVERAGE_HITRATE
+
