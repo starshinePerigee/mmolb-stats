@@ -2,10 +2,17 @@ from random import random
 
 from params import STAT_WEIGHTS, WEIGHT_WEIGHT, AVERAGE_HITRATE
 
+
 class Player:
     def __init__(
-            self, scale_min: float = 0, scale_max: float = 1, is_pitcher: bool = False
+        self,
+        team: int,
+        scale_min: float = 0,
+        scale_max: float = 1,
+        is_pitcher: bool = False,
     ):
+        self.team = team
+        self.scale = (scale_min + scale_max) / 2
         self.attributes = [
             random() * (scale_max - scale_min) + scale_min
             for __ in range(len(STAT_WEIGHTS))
@@ -38,17 +45,19 @@ def pitch(pitcher: Player, batter: Player) -> bool:
 
 class Team:
     def __init__(
-            self,
-            base_min: float = 0,
-            base_max: float = 1,
-            good_min: float = 0,
-            good_max: float = 1,
+        self,
+        team_id: int,
+        base_min: float = 0,
+        base_max: float = 1,
+        good_min: float = 0,
+        good_max: float = 1,
     ):
-        self.pitchers = [Player(good_min, good_max)] + [
-            Player(base_min, base_max, True) for __ in range(4)
+        self.t_id = team_id
+        self.pitchers = [Player(self.t_id, good_min, good_max)] + [
+            Player(self.t_id, base_min, base_max, True) for __ in range(4)
         ]
-        self.batters = [Player(good_min, good_max)] + [
-            Player(base_min, base_max) for __ in range(9)
+        self.batters = [Player(self.t_id, good_min, good_max)] + [
+            Player(self.t_id, base_min, base_max) for __ in range(9)
         ]
         self.games = 0
         self.wins = 0
@@ -68,6 +77,15 @@ class Team:
     @property
     def players(self) -> list[Player]:
         return self.pitchers + self.batters
+
+    def __hash__(self):
+        return self.t_id
+
+    def __str__(self):
+        return f"Team {self.t_id:03}"
+
+    def __repr__(self):
+        return f"<{self}>"
 
 
 def play_half(hitting: Team, pitching: Team, pitcher: Player) -> int:
@@ -105,12 +123,34 @@ def play_game(home: Team, away: Team) -> bool:
         return False
 
 
+"""
+How unfair is this simulation?
+
+across 1 million games, a 1-2 stat team beats a 0-1 stat team 96.7% of the time, with an average run diff of 11.7.
+a 0.1 - 1.1 team beata  0-1 stat team 60% of the time, with an average run diff of 1.28
+
+"""
+
+
 if __name__ == "__main__":
-    a = Team()
-    b = Team()
-    for i in range(100):
+    a_wins = 0
+    a_runs = 0
+    b_runs = 0
+    a = Team(1, 0.1, 1.1)
+    b = Team(2, 0, 1)
+    for i in range(1_000_000):
+        if i % 100 == 0:
+            a_wins += a.wins
+            a_runs += a.runs
+            b_runs += b.runs
+            a = Team(1, 0.1, 1.1)
+            b = Team(2, 0, 1)
+        if i % 10000 == 0:
+            print(i)
         play_game(a, b)
-    print(f"{a.wins} wins.")
-
-
-
+    a_wins += a.wins
+    a_runs += a.runs
+    b_runs += b.runs
+    print(
+        f"{a_wins} wins, with a {(a_runs-b_runs)/1_000_000} run diff {a_runs} - {b_runs}"
+    )
