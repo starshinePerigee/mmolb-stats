@@ -1,6 +1,6 @@
 from random import random
 
-from params import STAT_WEIGHTS, WEIGHT_WEIGHT, AVERAGE_HITRATE
+from params import STAT_WEIGHTS, WEIGHT_WEIGHT, AVERAGE_HITRATE, ITERATIONS
 
 
 class Player:
@@ -24,6 +24,14 @@ class Player:
     @property
     def weighted(self) -> float:
         return sum(x * y for x, y in zip(self.attributes, STAT_WEIGHTS))
+
+    def stat_dict(self) -> dict[str, float | int | bool]:
+        d = {"team": self.team, "scale": self.scale}
+        d.update({f"attr_{a}": v for a, v in enumerate(self.attributes)})
+        d.update(
+            {"at_bats": self.at_bats, "hits": self.hits, "is_pitcher": self.is_pitcher}
+        )
+        return d
 
 
 def relative_rate(pitcher: Player, batter: Player) -> float:
@@ -53,6 +61,13 @@ class Team:
         good_max: float = 1,
     ):
         self.t_id = team_id
+        self.seed_stats = {
+            "base_min": base_min,
+            "base_max": base_max,
+            "good_min": good_min,
+            "good_max": good_max,
+        }
+
         self.pitchers = [Player(self.t_id, good_min, good_max)] + [
             Player(self.t_id, base_min, base_max, True) for __ in range(4)
         ]
@@ -77,6 +92,22 @@ class Team:
     @property
     def players(self) -> list[Player]:
         return self.pitchers + self.batters
+
+    def stat_dict(self) -> dict[str, float | int | bool]:
+        d = self.seed_stats.copy()
+        d.update(
+            {
+                "games": self.games,
+                "wins": self.games,
+                "total_runs": self.runs,
+                "total_runs_surrendered": self.runs_surrendered,
+            }
+        )
+        for i, p in enumerate(self.pitchers):
+            d.update({f"p{i}_{k}": v for k, v in p.stat_dict().items()})
+        for i, b in enumerate(self.pitchers):
+            d.update({f"b{i}_{k}": v for k, v in b.stat_dict().items()})
+        return d
 
     def __hash__(self):
         return self.t_id
@@ -127,7 +158,7 @@ def play_game(home: Team, away: Team) -> bool:
 How unfair is this simulation?
 
 across 1 million games, a 1-2 stat team beats a 0-1 stat team 96.7% of the time, with an average run diff of 11.7.
-a 0.1 - 1.1 team beata  0-1 stat team 60% of the time, with an average run diff of 1.28
+a 0.1 - 1.1 team beata  0-1 stat team 60.2% of the time, with an average run diff of 1.28
 
 """
 
@@ -138,7 +169,7 @@ if __name__ == "__main__":
     b_runs = 0
     a = Team(1, 0.1, 1.1)
     b = Team(2, 0, 1)
-    for i in range(1_000_000):
+    for i in range(ITERATIONS):
         if i % 100 == 0:
             a_wins += a.wins
             a_runs += a.runs

@@ -1,7 +1,7 @@
 from random import shuffle
 
 from games import Team
-from params import LEAGUE_SIZE, MATCHMAKING_SPREAD, GAME_COUNT
+from params import LEAGUE_SIZE, MATCHMAKING_SPREAD, ITERATIONS
 
 
 class League:
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     l = League(LEAGUE_SIZE)
     d = {i: 0 for i in range(1, MATCHMAKING_SPREAD + 1)}
 
-    for i in range(100000):
+    for i in range(ITERATIONS):
         if i % 10000 == 0:
             print(i)
         m = l.generate_matchups()
