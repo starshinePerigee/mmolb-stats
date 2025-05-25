@@ -98,7 +98,7 @@ class Team:
         d.update(
             {
                 "games": self.games,
-                "wins": self.games,
+                "wins": self.wins,
                 "total_runs": self.runs,
                 "total_runs_surrendered": self.runs_surrendered,
             }
