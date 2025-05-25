@@ -1,5 +1,7 @@
 from random import shuffle, randint
 
+import pandas as pd
+
 from sim import params, Team, play_game
 
 
@@ -36,6 +38,11 @@ class League:
                 else:
                     play_game(matchup[0], matchup[1])
 
+    def to_dataframes(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        team_df = pd.DataFrame([team.stat_dict() for team in self.teams])
+        player_df = pd.DataFrame([player.stat_dict() for team in self.teams for player in team.players])
+        return team_df, player_df
+
 
 """
 How random is "generate_matchups" anyway?
@@ -57,10 +64,10 @@ here's the total count for team distances:
 Clearly, it's more likely to match on the far edge, which makes logical sense -
 to be picked, a team must both be picked and not picked on previous rounds. 
 
-l = League(LEAGUE_SIZE)
-d = {i: 0 for i in range(1, MATCHMAKING_SPREAD + 1)}
+l = League()
+d = {i: 0 for i in range(1, params.MATCHMAKING_SPREAD + 1)}
 
-for i in range(ITERATIONS):
+for i in range(params.ITERATIONS):
     if i % 10000 == 0:
         print(i)
     m = l.generate_matchups()
@@ -75,4 +82,6 @@ for i, v in d.items():
 if __name__ == "__main__":
     l = League()
     l.run_season()
-    print(l.teams[0].stat_dict())
+    for df in l.to_dataframes():
+        print(df)
+
