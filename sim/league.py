@@ -1,7 +1,6 @@
 from random import shuffle, randint
 
-from games import Team, play_game
-import params
+from sim import params, Team, play_game
 
 
 class League:

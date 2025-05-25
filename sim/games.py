@@ -1,6 +1,6 @@
 from random import random
 
-import params
+from sim import params
 
 
 class Player:
