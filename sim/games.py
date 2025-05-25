@@ -70,7 +70,7 @@ class Team:
             "good_max": good_max,
         }
 
-        self.pitchers = [Player(self.t_id, good_min, good_max)] + [
+        self.pitchers = [Player(self.t_id, good_min, good_max, True)] + [
             Player(self.t_id, base_min, base_max, True) for __ in range(4)
         ]
         self.batters = [Player(self.t_id, good_min, good_max)] + [
