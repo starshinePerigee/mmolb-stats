@@ -17,19 +17,24 @@ class Player:
             random() * (scale_max - scale_min) + scale_min
             for __ in range(len(params.STAT_WEIGHTS))
         ]
+        self.weighted = self.get_weighted()
         self.at_bats = 0
         self.hits = 0
         self.is_pitcher = is_pitcher
 
-    @property
-    def weighted(self) -> float:
+    def get_weighted(self) -> float:
         return sum(x * y for x, y in zip(self.attributes, params.STAT_WEIGHTS))
 
     def stat_dict(self) -> dict[str, float | int | bool]:
-        d = {"team": self.team, "scale": self.scale}
+        d = {"team": self.team, "scale": self.scale, "weight": self.weighted}
         d.update({f"attr_{a}": v for a, v in enumerate(self.attributes)})
         d.update(
-            {"at_bats": self.at_bats, "hits": self.hits, "is_pitcher": self.is_pitcher}
+            {
+                "at_bats": self.at_bats,
+                "hits": self.hits,
+                "average": self.hits / self.at_bats,
+                "is_pitcher": self.is_pitcher,
+            }
         )
         return d
 

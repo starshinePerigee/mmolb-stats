@@ -1,8 +1,15 @@
 from typing import Callable, Any
+from multiprocessing import Pool
 
 import pandas as pd
 
 from sim import params, League
+
+
+def quick_season(iteration: int = 0):
+    l = League()
+    l.run_season()
+    return l.to_dataframes()
 
 
 def run_monte_carlo(
@@ -18,25 +25,21 @@ def run_monte_carlo(
     and return a dict with your results columns.
     """
 
-    if params.ITERATIONS > 100:
+    if params.ITERATIONS > 1000:
         print(
-            "Warning! Each iteration involves an entire season of baseball. "
+            f"Warning! Iterations are currently set to {params.ITERATIONS}! "
+            "Each iteration involves an entire season of baseball. "
             "Execution may take some time!"
         )
 
-    running_data = []
-    for i in range(params.ITERATIONS):
-        if not mute and i % 10 == 0:
-            print(f"Running iteration {i}")
-        league = League()
-        league.run_season()
-        running_data.append(fn(*league.to_dataframes()))
+    with Pool(processes=params.MULTIPROCESSING_POOL_SIZE) as pool:
+        results = pool.map(quick_season, range(params.ITERATIONS))
 
-    return pd.DataFrame(running_data)
+    return pd.DataFrame([fn(*result) for result in results])
 
 
 if __name__ == "__main__":
-    params.ITERATIONS = 10
+    params.ITERATIONS = 1000
 
     def find_frauds(team_df, player_df):
         team_df["pythagorean_wins"] = params.GAME_COUNT / (
@@ -47,4 +50,4 @@ if __name__ == "__main__":
         return biggest_fraud.to_dict()
 
     df = run_monte_carlo(find_frauds)
-    print(df)
+    print(df.sort_values("fraudulent_wins", ascending=False))
