@@ -26,7 +26,7 @@ class Player:
         return sum(x * y for x, y in zip(self.attributes, params.STAT_WEIGHTS))
 
     def stat_dict(self) -> dict[str, float | int | bool]:
-        d = {"team": self.team, "scale": self.scale, "weight": self.weighted}
+        d = {"team": self.team, "scale": self.scale, "goodness": self.weighted}
         d.update({f"attr_{a}": v for a, v in enumerate(self.attributes)})
         d.update(
             {
@@ -41,8 +41,8 @@ class Player:
 
 def relative_rate(pitcher: Player, batter: Player) -> float:
     """Returns the hit rate of two players, with this player pitching"""
-    ratio = (batter.weighted + params.WEIGHT_WEIGHT) / (
-        pitcher.weighted + params.WEIGHT_WEIGHT
+    ratio = (batter.weighted + params.GOODNESS_WEIGHT) / (
+        pitcher.weighted + params.GOODNESS_WEIGHT
     )
     return ratio * params.AVERAGE_HITRATE
 
