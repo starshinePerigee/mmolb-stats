@@ -1,12 +1,12 @@
 from random import shuffle, randint
 
 from games import Team, play_game
-from params import LEAGUE_SIZE, MATCHMAKING_SPREAD, ITERATIONS, GAME_COUNT
+import params
 
 
 class League:
-    def __init__(self, team_count):
-        self.teams = [Team(i + 1) for i in range(team_count)]
+    def __init__(self):
+        self.teams = [Team(i + 1) for i in range(params.LEAGUE_SIZE)]
         # shuffle(self.teams)
 
     def generate_matchups(self) -> list[tuple[Team, Team]]:
@@ -18,7 +18,7 @@ class League:
             if allocated[team]:
                 continue
             # pull range and sort; keep in mind all teams above have already been allocated
-            candidate_teams = sorted_teams[i + 1 : i + MATCHMAKING_SPREAD + 1]
+            candidate_teams = sorted_teams[i + 1 : i + params.MATCHMAKING_SPREAD + 1]
             viable_teams = list(filter(lambda t: not allocated[t], candidate_teams))
             if not viable_teams:
                 raise ValueError(f"Error matchmaking on iteration {i}")
@@ -29,8 +29,8 @@ class League:
             allocated[match] = True
         return matchups
 
-    def run_season(self, game_count):
-        for g in range(game_count):
+    def run_season(self):
+        for g in range(params.GAME_COUNT):
             for matchup in self.generate_matchups():
                 if randint(0, 1):
                     play_game(matchup[0], matchup[1])
@@ -74,6 +74,6 @@ for i, v in d.items():
 
 
 if __name__ == "__main__":
-    l = League(LEAGUE_SIZE)
-    l.run_season(GAME_COUNT)
+    l = League()
+    l.run_season()
     print(l.teams[0].stat_dict())

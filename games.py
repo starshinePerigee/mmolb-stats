@@ -1,6 +1,6 @@
 from random import random
 
-from params import STAT_WEIGHTS, WEIGHT_WEIGHT, AVERAGE_HITRATE, ITERATIONS
+import params
 
 
 class Player:
@@ -15,7 +15,7 @@ class Player:
         self.scale = (scale_min + scale_max) / 2
         self.attributes = [
             random() * (scale_max - scale_min) + scale_min
-            for __ in range(len(STAT_WEIGHTS))
+            for __ in range(len(params.STAT_WEIGHTS))
         ]
         self.at_bats = 0
         self.hits = 0
@@ -23,7 +23,7 @@ class Player:
 
     @property
     def weighted(self) -> float:
-        return sum(x * y for x, y in zip(self.attributes, STAT_WEIGHTS))
+        return sum(x * y for x, y in zip(self.attributes, params.STAT_WEIGHTS))
 
     def stat_dict(self) -> dict[str, float | int | bool]:
         d = {"team": self.team, "scale": self.scale}
@@ -36,8 +36,10 @@ class Player:
 
 def relative_rate(pitcher: Player, batter: Player) -> float:
     """Returns the hit rate of two players, with this player pitching"""
-    ratio = (batter.weighted + WEIGHT_WEIGHT) / (pitcher.weighted + WEIGHT_WEIGHT)
-    return ratio * AVERAGE_HITRATE
+    ratio = (batter.weighted + params.WEIGHT_WEIGHT) / (
+        pitcher.weighted + params.WEIGHT_WEIGHT
+    )
+    return ratio * params.AVERAGE_HITRATE
 
 
 def pitch(pitcher: Player, batter: Player) -> bool:
@@ -169,7 +171,7 @@ if __name__ == "__main__":
     b_runs = 0
     a = Team(1, 0.1, 1.1)
     b = Team(2, 0, 1)
-    for i in range(ITERATIONS):
+    for i in range(params.ITERATIONS):
         if i % 100 == 0:
             a_wins += a.wins
             a_runs += a.runs
