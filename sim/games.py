@@ -1,6 +1,6 @@
 from random import random
 
-from sim import params
+from sim import Params
 
 
 class Player:
@@ -15,7 +15,7 @@ class Player:
         self.scale = (scale_min + scale_max) / 2
         self.attributes = [
             random() * (scale_max - scale_min) + scale_min
-            for __ in range(len(params.STAT_WEIGHTS))
+            for __ in range(len(Params.STAT_WEIGHTS))
         ]
         self.weighted = self.get_weighted()
         self.at_bats = 0
@@ -23,7 +23,7 @@ class Player:
         self.is_pitcher = is_pitcher
 
     def get_weighted(self) -> float:
-        return sum(x * y for x, y in zip(self.attributes, params.STAT_WEIGHTS))
+        return sum(x * y for x, y in zip(self.attributes, Params.STAT_WEIGHTS))
 
     def stat_dict(self) -> dict[str, float | int | bool]:
         d = {"team": self.team, "scale": self.scale, "goodness": self.weighted}
@@ -41,10 +41,10 @@ class Player:
 
 def relative_rate(pitcher: Player, batter: Player) -> float:
     """Returns the hit rate of two players, with this player pitching"""
-    ratio = (batter.weighted + params.GOODNESS_WEIGHT) / (
-        pitcher.weighted + params.GOODNESS_WEIGHT
+    ratio = (batter.weighted + Params.GOODNESS_WEIGHT) / (
+        pitcher.weighted + Params.GOODNESS_WEIGHT
     )
-    return ratio * params.AVERAGE_HITRATE
+    return ratio * Params.AVERAGE_HITRATE
 
 
 def pitch(pitcher: Player, batter: Player) -> bool:
@@ -85,6 +85,7 @@ class Team:
         self.wins = 0
         self.runs = 0
         self.runs_surrendered = 0
+        self.total_matchmaking_distance = 0
         self.batting_order = 0
         self.pitching_order = 0
 
@@ -106,6 +107,7 @@ class Team:
             {
                 "games": self.games,
                 "wins": self.wins,
+                "average_distance": self.total_matchmaking_distance / self.games,
                 "total_runs": self.runs,
                 "total_runs_surrendered": self.runs_surrendered,
             }
@@ -176,7 +178,7 @@ if __name__ == "__main__":
     b_runs = 0
     a = Team(1, 0.1, 1.1)
     b = Team(2, 0, 1)
-    for i in range(params.ITERATIONS):
+    for i in range(Params.ITERATIONS):
         if i % 100 == 0:
             a_wins += a.wins
             a_runs += a.runs
