@@ -14,8 +14,6 @@ def quick_season(iteration: int = 0):
 
 def run_monte_carlo(
     fn: Callable[[pd.DataFrame, pd.DataFrame], dict[str, Any]],
-    *,
-    mute=False,
 ) -> pd.DataFrame:
     """
     Runs a sim params.ITERATIONS numbers of time, executing an entire season and then passing
