@@ -1,0 +1,4 @@
+track pitchers seen average goodness
+team position to average goodness correlation
+
+run effect of actual stats (addtl runs) on correlations
